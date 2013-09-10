@@ -35,13 +35,15 @@ void loop() {
   float sensor1 = read(SENSOR_1);
   float sensor2 = read(SENSOR_2);
 
-  if (valid_gt(sensor1, sensor1_target) ||
-      valid_gt(sensor2, sensor2_target) ) {
+  if (sensor1 < 0 || sensor2 < 0 ) {
     digitalWrite(HEATER, LOW); // turn heater off
   }
-
-  if (valid_lt(sensor1, sensor1_target) ||
-      valid_lt(sensor2, sensor2_target) ) {
+  else if (valid_gt(sensor1, sensor1_target) ||
+    valid_gt(sensor2, sensor2_target) ) {
+    digitalWrite(HEATER, LOW); // turn heater off
+  }
+  else if (valid_lt(sensor1, sensor1_target) ||
+    valid_lt(sensor2, sensor2_target) ) {
     digitalWrite(HEATER, HIGH); // turn heater on
   }
 
