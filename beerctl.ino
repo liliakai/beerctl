@@ -13,8 +13,6 @@
 // higher temp -> lower ADC value, higher ADC value -> lower temp. if adc is
 // too high (temp is too low), assume sensor is disconnected and ignore.
 #define ADC_MAX 1000
-#define valid_gt(val, limit) ((val > 0) && (val > limit))
-#define valid_lt(val, limit) ((val > 0) && (val < limit))
 
 #define SENSOR_1 A0
 #define SENSOR_2 A1
@@ -38,12 +36,10 @@ void loop() {
   if (sensor1 < 0 || sensor2 < 0 ) {
     digitalWrite(HEATER, LOW); // turn heater off
   }
-  else if (valid_gt(sensor1, sensor1_target) ||
-    valid_gt(sensor2, sensor2_target) ) {
+  else if ((sensor1 > sensor1_target) || (sensor2 > sensor2_target)) {
     digitalWrite(HEATER, LOW); // turn heater off
   }
-  else if (valid_lt(sensor1, sensor1_target) ||
-    valid_lt(sensor2, sensor2_target) ) {
+  else if ((sensor1 < sensor1_target) || (sensor2 < sensor2_target)) {
     digitalWrite(HEATER, HIGH); // turn heater on
   }
 
