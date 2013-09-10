@@ -33,6 +33,10 @@ void loop() {
   float sensor1 = read(SENSOR_1);
   float sensor2 = read(SENSOR_2);
 
+  Serial.print(sensor1);
+  Serial.print(sensor2);
+  Serial.println("----");
+
   if (sensor1 < 0 || sensor2 < 0 ) {
     digitalWrite(HEATER, LOW); // turn heater off
   }
@@ -42,10 +46,6 @@ void loop() {
   else if ((sensor1 < sensor1_target) || (sensor2 < sensor2_target)) {
     digitalWrite(HEATER, HIGH); // turn heater on
   }
-
-  Serial.print(sensor1);
-  Serial.print(sensor2);
-  Serial.println("----");
 
   if (millis() > MILLIS_TIL_NEXT_TARGET) {
     sensor1_target = SENSOR_1_TARGET_2;
