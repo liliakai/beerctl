@@ -60,6 +60,6 @@ void loop() {
 
 float read(int sensor_pin) {
   int val = analogRead(sensor_pin);
-  if (val > ADC_MAX) return -1;
+  if (val > ADC_MAX) return -1.0;
   return ADC_SCALE*val + ADC_OFFSET;
 }
