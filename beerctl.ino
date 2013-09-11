@@ -6,8 +6,8 @@
 #define RED_TARGET_2 170.0  // 
 #define BLUE_TARGET_2 160.0
 
-#define MILLIS_TIL_THIRD_TARGET 60000 * 15 // 60000 = 1 minute
-#define RED_TARGET_3 0.0  // 
+#define MILLIS_TIL_THIRD_TARGET 60000 * 60 // 60000 = 1 minute
+#define RED_TARGET_3 0.0  // above number is TOTAL TIME since start 
 #define BLUE_TARGET_3 0.0
 #define AVG_CYCLES 50 // how many times to take a reading at a time
 
@@ -15,10 +15,10 @@
 
 // blue adc = -6.4288x + 1271.529
 // (adc - 1271.529) / -6.4288 = temp in F
-#define BLUE_OFFSET 1271.529
+#define BLUE_OFFSET 1322.95 // 1271.529
 #define BLUE_SLOPE -6.4288
 // red adc = -6.2782x + 1292.983
-#define RED_OFFSET 1292.983
+#define RED_OFFSET 1311.81 // 1292.983
 #define RED_SLOPE -6.2782
 
 // higher temp -> lower ADC value, higher ADC value -> lower temp. if adc is
@@ -56,11 +56,11 @@ void loop() {
     digitalWrite(HEATER, LOW); // turn heater off
   }
   else if ((red > red_target) || (blue > blue_target)) {
-    Serial.print("0");
+    Serial.print("00000");
     digitalWrite(HEATER, LOW); // turn heater off
   }
   else if ((red < red_target) && (blue < blue_target)) {
-    Serial.print("1");
+    Serial.print("11111");
     digitalWrite(HEATER, HIGH); // turn heater on
   }
 
