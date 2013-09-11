@@ -1,61 +1,98 @@
 // threshold values in degrees F
-#define SENSOR_1_TARGET_1 150.0
-#define SENSOR_2_TARGET_1 160.0
-#define SENSOR_1_TARGET_2 160.0
-#define SENSOR_2_TARGET_2 170.0
+#define RED_TARGET_1 155.0  //
+#define BLUE_TARGET_1 150.0
 
-#define MILLIS_TIL_NEXT_TARGET 1800000 // 30 min = 1800000 ms
+#define MILLIS_TIL_SECOND_TARGET 60000 * 45 // 60000 = 1 minute
+#define RED_TARGET_2 170.0  // 
+#define BLUE_TARGET_2 160.0
+
+#define MILLIS_TIL_THIRD_TARGET 60000 * 15 // 60000 = 1 minute
+#define RED_TARGET_3 0.0  // 
+#define BLUE_TARGET_3 0.0
+#define AVG_CYCLES 50 // how many times to take a reading at a time
 
 // constants for conversion to degrees F
-#define ADC_SCALE 1.0
-#define ADC_OFFSET 0.0
+
+// blue adc = -6.4288x + 1271.529
+// (adc - 1271.529) / -6.4288 = temp in F
+#define BLUE_OFFSET 1271.529
+#define BLUE_SLOPE -6.4288
+// red adc = -6.2782x + 1292.983
+#define RED_OFFSET 1292.983
+#define RED_SLOPE -6.2782
 
 // higher temp -> lower ADC value, higher ADC value -> lower temp. if adc is
-// too high (temp is too low), assume sensor is disconnected and ignore.
+// too high (temp is too low), assume sensor is disconnected and fail off.
 #define ADC_MAX 1000
 
-#define SENSOR_1 A0
-#define SENSOR_2 A1
+#define REDPIN A0
+#define BLUEPIN A1
 #define HEATER 11
 
-float sensor1_target, sensor2_target;
+int target = 1;  // which target are we on?
+
+float red_target, blue_target;
 
 void setup() {
   Serial.begin(9600);
   pinMode(HEATER, OUTPUT);
-  pinMode(SENSOR_1, INPUT);
-  pinMode(SENSOR_2, INPUT);
-  sensor1_target = SENSOR_1_TARGET_1;
-  sensor2_target = SENSOR_2_TARGET_1;
+  pinMode(REDPIN, INPUT);
+  pinMode(BLUEPIN, INPUT);
+  red_target = RED_TARGET_1;
+  blue_target = BLUE_TARGET_1;
 }
 
 void loop() {
-  float sensor1 = read(SENSOR_1);
-  float sensor2 = read(SENSOR_2);
+  float red = readSensor(REDPIN);
+  float blue = readSensor(BLUEPIN);
 
-  Serial.print(sensor1);
-  Serial.print(sensor2);
-  Serial.println("----");
+  Serial.print("RED: ");
+  Serial.print(red);
+  Serial.print("  BLUE: ");
+  Serial.println(blue);
 
-  if (sensor1 < 0 || sensor2 < 0 ) {
+  if (red < -999 || blue < -999 ) {
+    Serial.println("ERROR:  one of the sensors is disconnected!");
     digitalWrite(HEATER, LOW); // turn heater off
   }
-  else if ((sensor1 > sensor1_target) || (sensor2 > sensor2_target)) {
+  else if ((red > red_target) || (blue > blue_target)) {
+    Serial.print("0");
     digitalWrite(HEATER, LOW); // turn heater off
   }
-  else if ((sensor1 < sensor1_target) || (sensor2 < sensor2_target)) {
+  else if ((red < red_target) && (blue < blue_target)) {
+    Serial.print("1");
     digitalWrite(HEATER, HIGH); // turn heater on
   }
 
-  if (millis() > MILLIS_TIL_NEXT_TARGET) {
-    sensor1_target = SENSOR_1_TARGET_2;
-    sensor2_target = SENSOR_2_TARGET_2;
-    Serial.println("Switched target temperature!");
+  if ((millis() > MILLIS_TIL_THIRD_TARGET) && (target == 2)) {
+    target = 3;
+    red_target = RED_TARGET_3;
+    blue_target = BLUE_TARGET_3;
+   Serial.print("THIRD target temperatures: ");
+   Serial.print(blue_target);
+   Serial.print("  ");
+   Serial.println(red_target);
   }
+  
+  if ((millis() > MILLIS_TIL_SECOND_TARGET) && (target == 1)) {
+    target = 2;
+    red_target = RED_TARGET_2;
+    blue_target = BLUE_TARGET_2;
+   Serial.print("SECOND target temperatures: ");
+   Serial.print(blue_target);
+   Serial.print("  ");
+   Serial.println(red_target);
+  }
+  delay(100);
 }
 
-float read(int sensor_pin) {
-  int val = analogRead(sensor_pin);
-  if (val > ADC_MAX) return -1.0;
-  return ADC_SCALE*val + ADC_OFFSET;
+float readSensor(int sensor_pin) {
+  unsigned long adder = 0;
+  for (int i = 0; i < AVG_CYCLES; i++) adder += analogRead(sensor_pin);
+  delay(5);
+  float val = adder / AVG_CYCLES;
+  if (val > ADC_MAX) return -1000.0;
+// (adc - 1271.529) / -6.4288 = temp in F
+  if (sensor_pin == REDPIN) return (val - RED_OFFSET)/RED_SLOPE;
+  if (sensor_pin == BLUEPIN) return (val - BLUE_OFFSET)/BLUE_SLOPE;
 }
