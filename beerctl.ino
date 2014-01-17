@@ -1,6 +1,6 @@
 // threshold values in degrees F
-#define RED_TARGET_1 155.0  //
-#define BLUE_TARGET_1 150.0
+#define RED_TARGET_1 110 // 155.0  //
+#define BLUE_TARGET_1 110 // 150.0
 
 #define MILLIS_TIL_SECOND_TARGET 60000 * 45 // 60000 = 1 minute
 #define RED_TARGET_2 170.0  // 
@@ -63,7 +63,7 @@ void loop() {
     Serial.print("11111");
     digitalWrite(HEATER, HIGH); // turn heater on
   }
-
+/*
   if ((millis() > MILLIS_TIL_THIRD_TARGET) && (target == 2)) {
     target = 3;
     red_target = RED_TARGET_3;
@@ -83,6 +83,7 @@ void loop() {
    Serial.print("  ");
    Serial.println(red_target);
   }
+*/
   delay(100);
 }
 
