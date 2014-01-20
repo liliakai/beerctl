@@ -1,6 +1,7 @@
 // threshold values in degrees F
-#define RED_TARGET_1 110 // 155.0  //
-#define BLUE_TARGET_1 110 // 150.0
+#define RED_TARGET_1 102 // 155.0  //
+#define BLUE_TARGET_1 RED_TARGET_1 + 5.7 // 150.0
+#define CORRECTION -6 // it thinks actual 98.3 is 104.3 in 110 out
 
 #define MILLIS_TIL_SECOND_TARGET 60000 * 45 // 60000 = 1 minute
 #define RED_TARGET_2 170.0  // 
@@ -29,8 +30,10 @@
 #define BLUEPIN A1
 #define HEATER 11
 
-int target = 1;  // which target are we on?
+#define DOWNTIME 10000 // minimum off time before turning on again
 
+int target = 1;  // which target are we on?
+unsigned long timeNow, lastOn = 0;
 float red_target, blue_target;
 
 void setup() {
@@ -43,9 +46,13 @@ void setup() {
 }
 
 void loop() {
+  timeNow = millis();
+  
   float red = readSensor(REDPIN);
   float blue = readSensor(BLUEPIN);
-
+  red += CORRECTION;
+  blue += CORRECTION;
+  
   Serial.print("RED: ");
   Serial.print(red);
   Serial.print("  BLUE: ");
@@ -54,14 +61,19 @@ void loop() {
   if (red < -999 || blue < -999 ) {
     Serial.println("ERROR:  one of the sensors is disconnected!");
     digitalWrite(HEATER, LOW); // turn heater off
+    lastOn = timeNow;
   }
   else if ((red > red_target) || (blue > blue_target)) {
     Serial.print("00000");
     digitalWrite(HEATER, LOW); // turn heater off
+    lastOn = timeNow;
   }
   else if ((red < red_target) && (blue < blue_target)) {
     Serial.print("11111");
-    digitalWrite(HEATER, HIGH); // turn heater on
+    if (timeNow - lastOn > DOWNTIME) {
+      Serial.print("turning on heater");
+      digitalWrite(HEATER, HIGH); // turn heater on
+    }
   }
 /*
   if ((millis() > MILLIS_TIL_THIRD_TARGET) && (target == 2)) {
