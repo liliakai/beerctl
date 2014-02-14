@@ -1,6 +1,6 @@
 // threshold values in degrees F
-#define RED_TARGET_1 102 // 155.0  //
-#define BLUE_TARGET_1 RED_TARGET_1 + 5.7 // 150.0
+#define RED_TARGET_1 102 // straight port
+#define BLUE_TARGET_1 RED_TARGET_1 + 15 // elbow port
 #define CORRECTION -6 // it thinks actual 98.3 is 104.3 in 110 out
 
 #define MILLIS_TIL_SECOND_TARGET 60000 * 45 // 60000 = 1 minute
@@ -69,9 +69,9 @@ void loop() {
     lastOn = timeNow;
   }
   else if ((red < red_target) && (blue < blue_target)) {
-    Serial.print("11111");
+    Serial.print("11");
     if (timeNow - lastOn > DOWNTIME) {
-      Serial.print("turning on heater");
+      Serial.print("111");
       digitalWrite(HEATER, HIGH); // turn heater on
     }
   }
